@@ -3,10 +3,37 @@
 // 2. middleware (app.use(<middleware func>))
 // 3. routes
 
+// morgan:
+// morgan(format, options)
+// format(tokens, req, res)
+// tokens: object with all defined tokens
+// req: http request
+// res: http response
+// tiny: :method :url :status :res[content-length] - :response-time ms
+// tiny: POST /api/persons 200 54 - 4.385 ms
+// tiny manual: POST /api/persons 200 55 - 4.281 ms
+
 const express = require('express');
+const morgan = require('morgan');
+
+morgan.token('body', (req, res) => {
+  return req.body;
+});
+
 const app = express();
 
 app.use(express.json());
+
+app.use(
+  morgan((tokens, req, res) => {
+    console.log('Method:', tokens.method(req, res));
+    console.log('Path:', tokens.url(req, res));
+    console.log('Status:', tokens.status(req, res));
+    console.log('Content Length:', tokens.res(req, res, 'content-length'));
+    console.log('Response Time:', tokens['response-time'](req, res), 'ms');
+    console.log('Data:', tokens.body(req, res));
+  })
+);
 
 let persons = [
   {
