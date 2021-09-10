@@ -1,18 +1,3 @@
-// Order:
-// 1. express server (app.use(express.json()))
-// 2. middleware (app.use(<middleware func>))
-// 3. routes
-
-// morgan:
-// morgan(format, options)
-// format(tokens, req, res)
-// tokens: object with all defined tokens
-// req: http request
-// res: http response
-// tiny: :method :url :status :res[content-length] - :response-time ms
-// tiny: POST /api/persons 200 54 - 4.385 ms
-// tiny manual: POST /api/persons 200 55 - 4.281 ms
-
 const express = require('express');
 const morgan = require('morgan');
 
@@ -130,12 +115,3 @@ const PORT = 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}..`);
 });
-
-// method:  GET
-// path:  /api/notes
-// body:  {}
-// ----
-// method:  POST
-// path:  /api/notes
-// body:  { content: 'VS Code REST client is pretty good', importance: false }
-// ----
