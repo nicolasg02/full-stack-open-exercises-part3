@@ -1,12 +1,13 @@
-const express = require('express');
-const morgan = require('morgan');
+const express = require('express'); // server
+const app = express();
+const morgan = require('morgan'); // middleware
+const cors = require('cors');
 
 morgan.token('body', (req, res) => {
   return req.body;
 });
 
-const app = express();
-
+app.use(cors());
 app.use(express.json());
 
 app.use(
@@ -20,6 +21,7 @@ app.use(
   })
 );
 
+// contacts data
 let persons = [
   {
     id: 1,
@@ -43,19 +45,22 @@ let persons = [
   },
 ];
 
+// get all contacts
 app.get('/api/persons', (request, response) => {
   response.json(persons);
 });
 
+// get contacts length
 app.get('/info', (request, response) => {
   response.send(
     `<p>Phonebook has info for ${persons.length} people</p> ${new Date()}`
   );
 });
 
+// single contact url
 app.get('/api/persons/:id', (request, response) => {
   const id = Number(request.params.id);
-  const person = persons.find(person => {
+  const person = persons.find((person) => {
     return person.id === id;
   });
 
@@ -66,9 +71,10 @@ app.get('/api/persons/:id', (request, response) => {
   }
 });
 
+// delete contact
 app.delete('/api/persons/:id', (request, response) => {
   const id = Number(request.params.id);
-  persons = persons.filter(person => person.id !== id);
+  persons = persons.filter((person) => person.id !== id);
 
   response.status(204).end();
 });
@@ -77,6 +83,7 @@ const generateRandomId = () => {
   return Math.floor(Math.random() * 100);
 };
 
+// create new contact
 app.post('/api/persons', (request, response) => {
   const body = request.body;
 
@@ -92,7 +99,9 @@ app.post('/api/persons', (request, response) => {
     });
   }
 
-  const personAlreadyExists = persons.some(person => person.name === body.name);
+  const personAlreadyExists = persons.some(
+    (person) => person.name === body.name
+  );
 
   if (personAlreadyExists) {
     return response.status(400).json({
