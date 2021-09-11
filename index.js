@@ -3,12 +3,12 @@ const morgan = require('morgan'); // middleware
 const cors = require('cors');
 
 const app = express();
+app.use(express.static('build'));
 
 morgan.token('body', (req, res) => {
   return req.body;
 });
 
-app.use(express.static('build'));
 app.use(cors());
 app.use(express.json());
 
