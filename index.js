@@ -54,14 +54,22 @@ app.get('/info', (request, response) => {
 });
 
 // single contact url
-app.get('/api/persons/:id', (request, response) => {
-  Person.findById(request.params.id).then(person => {
-    response.json(person);
-  });
+app.get('/api/persons/:id', (request, response, next) => {
+  Person.findById(request.params.id)
+    .then(person => {
+      if (person) {
+        response.json(note);
+      } else {
+        response.status(400).end();
+      }
+    })
+    .catch(error => next(error));
 });
 
+// PUT
+
 // delete contact
-app.delete('/api/persons/:id', (request, response, next) => {
+app.delete('/api/persons/:id', (request, response) => {
   Person.findByIdAndRemove(request.params.id)
     .then(result => {
       response.status(204).end();
