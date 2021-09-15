@@ -1,6 +1,7 @@
 const express = require('express'); // server
 const app = express();
 const cors = require('cors');
+app.use(cors());
 require('dotenv').config();
 const Person = require('./models/persons');
 const morgan = require('morgan'); // middleware
@@ -9,18 +10,17 @@ morgan.token('body', (req, res) => {
   return req.body;
 });
 
+const requestLogger = (tokens, req, res) => {
+  console.log('Method:', tokens.method(req, res));
+  console.log('Path:', tokens.url(req, res));
+  console.log('Status:', tokens.status(req, res));
+  console.log('Content Length:', tokens.res(req, res, 'content-length'));
+  console.log('Response Time:', tokens['response-time'](req, res), 'ms');
+};
+
 app.use(express.static('build'));
-app.use(cors());
 app.use(express.json());
-app.use(
-  morgan((tokens, req, res) => {
-    console.log('Method:', tokens.method(req, res));
-    console.log('Path:', tokens.url(req, res));
-    console.log('Status:', tokens.status(req, res));
-    console.log('Content Length:', tokens.res(req, res, 'content-length'));
-    console.log('Response Time:', tokens['response-time'](req, res), 'ms');
-  })
-);
+app.use(morgan(requestLogger));
 
 // get all contacts
 app.get('/api/persons', (request, response) => {
@@ -61,12 +61,31 @@ app.get('/api/persons/:id', (request, response) => {
 });
 
 // delete contact
-app.delete('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id);
-  persons = persons.filter(person => person.id !== id);
-
-  response.status(204).end();
+app.delete('/api/persons/:id', (request, response, next) => {
+  Person.findByIdAndRemove(request.params.id)
+    .then(result => {
+      response.status(204).end();
+    })
+    .catch(error => next(error));
 });
+
+const unknownEndPoint = (request, response) => {
+  response.status(400).send({ error: 'unknown endpoint' });
+};
+
+app.use(unknownEndPoint);
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message);
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' });
+  }
+
+  next(error);
+};
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
