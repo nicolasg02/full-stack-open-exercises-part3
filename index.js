@@ -41,9 +41,14 @@ app.post('/api/persons', (request, response) => {
     number: body.number,
   });
 
-  person.save().then(savedPerson => {
-    response.json(savedPerson);
-  });
+  person
+    .save()
+    .then(savedPerson => {
+      response.json(savedPerson);
+    })
+    .catch(error => {
+      response.status(400).send({ error: 'Expected unique name.' });
+    });
 });
 
 // app.get('/api/persons', (request, response) => {
