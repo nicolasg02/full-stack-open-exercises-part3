@@ -63,12 +63,6 @@ app.post('/api/persons', (request, response) => {
     });
 });
 
-// app.get('/api/persons', (request, response) => {
-//   Person.find({}).then(persons => {
-//     response.json(persons);
-//   });
-// });
-
 // get contacts length
 app.get('/info', (request, response) => {
   Person.find({}, (err, results) => {
