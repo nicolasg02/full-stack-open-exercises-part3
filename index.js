@@ -46,11 +46,19 @@ app.post('/api/persons', (request, response) => {
   });
 });
 
+// app.get('/api/persons', (request, response) => {
+//   Person.find({}).then(persons => {
+//     response.json(persons);
+//   });
+// });
+
 // get contacts length
 app.get('/info', (request, response) => {
-  response.send(
-    `<p>Phonebook has info for ${persons.length} people</p> ${new Date()}`
-  );
+  Person.find({}, (err, results) => {
+    response.send(
+      `<p>Phonebook has info for ${results.length} people</p> ${new Date()}`
+    );
+  });
 });
 
 // single contact url
@@ -58,7 +66,7 @@ app.get('/api/persons/:id', (request, response, next) => {
   Person.findById(request.params.id)
     .then(person => {
       if (person) {
-        response.json(note);
+        response.json(person);
       } else {
         response.status(400).end();
       }
@@ -67,6 +75,20 @@ app.get('/api/persons/:id', (request, response, next) => {
 });
 
 // PUT
+app.put('/api/persons/:id', (request, response, next) => {
+  const body = request.body;
+
+  const person = {
+    name: body.name,
+    number: body.number,
+  };
+
+  Person.findByIdAndUpdate(request.params.id, person, { new: true })
+    .then(updatedPerson => {
+      response.json(updatedPerson);
+    })
+    .catch(error => next(error));
+});
 
 // delete contact
 app.delete('/api/persons/:id', (request, response) => {
